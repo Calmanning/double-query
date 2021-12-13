@@ -47,10 +47,14 @@ require([
         }
 
         sqlStateSelect.addEventListener("change", (event) => {
-            setDefinitionExpression(`ST = '${event.target.value}'`)
+            if(populationSelect.value === "Choose a population threshold"){
+                setDefinitionExpression(`ST = '${event.target.value}'`)
+                } else {
+                    setDefinitionExpression(`ST = '${event.target.value}' AND ${populationSelect.value}`  )
+                }
         })
 
-        sqlPopulationExp = ["Choose a population threshold", "POPULATION > 500000", "POPULATION > 1000000"]
+        sqlPopulationExp = ["Choose a population threshold", "POPULATION > 10000", "POPULATION > 100000", "POPULATION > 500000", "POPULATION > 1000000"]
         
         const populationSelect = document.createElement("select")
             populationSelect.setAttribute("class", "esri-widget");
@@ -65,11 +69,10 @@ require([
         view.ui.add(populationSelect, "top-right")
 
         populationSelect.addEventListener("change", (e) => {
-            if(!featureLayer.definitionExpression){
-                setDefinitionExpression(e.target.value)
+            if(sqlStateSelect.value.length === 2){
+                setDefinitionExpression(`ST = '${sqlStateSelect.value}' AND ${e.target.value}`)
             } else {
-                setDefinitionExpression(featureLayer.definitionExpression + " AND " + e.target.value)
-            }
+                setDefinitionExpression(e.target.value)            }
         })
 
 })
