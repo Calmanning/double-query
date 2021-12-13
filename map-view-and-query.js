@@ -28,7 +28,7 @@ require([
         });
         view.map.add(featureLayer)
 
-        const sqlStateExp = ["Select a state", "AK", "CA", "CO", "CT", "OH", "PA", "NY", "WA"]
+        const sqlStateExp = ["Select a state", "All states", "AK", "CA", "CO", "CT", "OH", "PA", "NY", "WA"]
         
         const sqlStateSelect = document.createElement("select", "");
             sqlStateSelect.setAttribute("class", "esri-widget")
@@ -48,9 +48,17 @@ require([
 
         sqlStateSelect.addEventListener("change", (event) => {
             if(populationSelect.value === "Choose a population threshold"){
-                setDefinitionExpression(`ST = '${event.target.value}'`)
+                if(sqlStateSelect.value === "All states"){
+                 setDefinitionExpression("")   
+                    }else{
+                    setDefinitionExpression(`ST = '${event.target.value}'`)
+                    }
                 } else {
-                    setDefinitionExpression(`ST = '${event.target.value}' AND ${populationSelect.value}`  )
+                if(sqlStateSelect.value === "All states"){
+                    setDefinitionExpression(`${populationSelect.value}`)
+                }else{
+                    setDefinitionExpression(`ST = '${event.target.value}' AND ${populationSelect.value}`)
+                    }
                 }
         })
 
