@@ -14,18 +14,19 @@ require([
             basemap: "arcgis-topographic"
         });
 
-        const webMap = new WebMap ({
-            portalItem: {
-                id: "e0c5522ec20b49948d129bce35556188"
-            }
+        const featureLayer = new FeatureLayer ({
+            url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_Major_Cities/FeatureServer",
+            outfields: ["*"],
+            definitionExpression: ""
         });
 
         const view = new MapView ({
             container: "viewDiv",
-            map: webMap,
+            map: map,
             center:[-88.80543, 40.03000],
             zoom: 7
         });
+        view.map.add(featureLayer)
 
         const sqlStateExp = ["Select a state", "AK", "CA", "CO", "CT", "OH", "PA", "NY", "WA"]
         
@@ -40,5 +41,35 @@ require([
                 sqlStateSelect.appendChild(stateSelectEntry);
             }));
             view.ui.add(sqlStateSelect, "top-right")
+
+        function setDefinitionExpression(newSqlExp){
+            featureLayer.definitionExpression = newSqlExp
+        }
+
+        sqlStateSelect.addEventListener("change", (event) => {
+            setDefinitionExpression(`ST = '${event.target.value}'`)
+        })
+
+        sqlPopulationExp = ["Choose a population threshold", "POPULATION > 500000", "POPULATION > 1000000"]
+        
+        const populationSelect = document.createElement("select")
+            populationSelect.setAttribute("class", "esri-widget");
+            populationSelect.setAttribute("style", "width: 200px; font-family: 'Avenir-Next'; font-size: 1em");
+
+        sqlPopulationExp.forEach(((populationThreshold) => {
+            let popThresholdEntry = document.createElement("option");
+            popThresholdEntry.innerHTML = populationThreshold;
+            popThresholdEntry.value = populationThreshold;
+            populationSelect.appendChild(popThresholdEntry)            
+        }))
+        view.ui.add(populationSelect, "top-right")
+
+        populationSelect.addEventListener("change", (e) => {
+            if(!featureLayer.definitionExpression){
+                setDefinitionExpression(e.target.value)
+            } else {
+                setDefinitionExpression(featureLayer.definitionExpression + " AND " + e.target.value)
+            }
+        })
 
 })
